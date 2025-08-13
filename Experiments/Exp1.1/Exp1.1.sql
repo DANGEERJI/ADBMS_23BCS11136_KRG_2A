@@ -1,68 +1,88 @@
-CREATE TABLE EmployeeTable ( 
-   EmployeeID INT PRIMARY KEY, 
-   EmployeeName VARCHAR(25), 
-   Dept VARCHAR(25), 
-   ManagerID INT 
+CREATE TABLE Author ( 
+  Author_id INT PRIMARY KEY, 
+  Author_Name VARCHAR(MAX), 
+  Country VARCHAR(MAX) 
 ); 
 
-INSERT INTO EmployeeTable (EmployeeID, EmployeeName, Dept, ManagerID) VALUES 
-                                                                     (1, 'Sarthak', 'HR', NULL), 
-                                                                     (2, 'Reyansh', 'Finance', 1), 
-                                                                     (3, 'Yogesh', 'IT', 1), 
-                                                                     (4, 'Pravi', 'Finance', 2), 
-                                                                     (5, 'Surya', 'IT', 3), 
-                                                                     (6, 'MD', 'HR', 1); 
-
-SELECT * FROM EmployeeTable; 
-
-SELECT  
-   E.EmployeeName AS [Employee_Name], 
-   M.EmployeeName AS [Manager_Name], 
-   E.Dept AS [Employee_Dept], 
-   M.Dept AS [Manager_Dept] 
-      FROM EmployeeTable E 
-      LEFT JOIN EmployeeTable M 
-      ON E.ManagerID = M.EmployeeID; 
-
-CREATE TABLE YearData ( 
-   RecordID INT, 
-   YearVal INT, 
-   NetPresentValue INT 
+CREATE TABLE Book ( 
+  Book_id INT PRIMARY KEY, 
+  Book_Name VARCHAR(MAX), 
+  Author_id INT, 
+  FOREIGN KEY (Author_id) REFERENCES Author(Author_id) 
 ); 
 
-CREATE TABLE RequestList ( 
-   RecordID INT, 
-   YearVal INT 
+INSERT INTO Author (Author_id, Author_Name, Country) VALUES  
+                                                    (1, 'ABC', 'India'), 
+                                                    (2, 'EFG', 'US'), 
+                                                    (3, 'XYZ', 'China'), 
+                                                    (4, 'MNO', 'Japan'); 
+
+INSERT INTO Book (Book_id, Book_Name, Author_id) VALUES  
+                                                (11, 'Harry Potter', 1), 
+                                                (12, 'A Game of Thrones', 2), 
+                                                (13, 'Norwegian Wood', 3); 
+
+SELECT a.Author_Name,a.Country,b.Book_Name 
+  from  Author as a 
+  inner join 
+  Book as b 
+  ON  
+  a.Author_id=b.Author_id;
+
+SELECT a.*,b.* 
+  from  Author as a 
+  left outer join 
+  Book as b 
+  ON  
+  a.Author_id=b.Author_id;
+
+SELECT a.*,b.* 
+  from  Author as a 
+  right outer join 
+  Book as bk
+  ON  
+  a.Author_id=b.Author_id;
+
+CREATE TABLE Departments ( 
+  DepartmentID INT PRIMARY KEY, 
+  DepartmentName VARCHAR(100) NOT NULL 
 ); 
 
-INSERT INTO YearData (RecordID, YearVal, NetPresentValue) VALUES 
-                                                         (1, 2018, 100), 
-                                                         (7, 2020, 30), 
-                                                         (13, 2019, 40), 
-                                                         (1, 2019, 113), 
-                                                         (2, 2008, 121), 
-                                                         (3, 2009, 12), 
-                                                         (11, 2020, 99), 
-                                                         (7, 2019, 0); 
+CREATE TABLE Courses ( 
+  CourseID INT PRIMARY KEY, 
+  CourseTitle VARCHAR(150) NOT NULL, 
+  DepartmentID INT, 
+  FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID) 
+); 
 
-SELECT * FROM YearData; 
+INSERT INTO Departments (DepartmentID, DepartmentName) VALUES 
+                                                      (1, 'Computer Science'), 
+                                                      (2, 'Mathematics'), 
+                                                      (3, 'Physics'), 
+                                                      (4, 'Chemistry'), 
+                                                      (5, 'Biology'); 
 
-INSERT INTO RequestList (RecordID, YearVal) VALUES 
-                                          (1, 2019), 
-                                          (2, 2008), 
-                                          (3, 2009), 
-                                          (7, 2018), 
-                                          (7, 2019), 
-                                          (7, 2020), 
-                                          (13, 2019); 
+SELECT * FROM Departments; 
 
-SELECT * FROM RequestList; 
+INSERT INTO Courses (CourseID, CourseTitle, DepartmentID) VALUES 
+                                                        (101, 'Data Structures', 1), 
+                                                        (102, 'Operating Systems', 1), 
+                                                        (103, 'Algorithms', 1), 
+                                                        (104, 'Calculus I', 2), 
+                                                        (105, 'Linear Algebra', 2), 
+                                                        (106, 'Quantum Mechanics', 3), 
+                                                        (107, 'Classical Mechanics', 3), 
+                                                        (108, 'Organic Chemistry', 4), 
+                                                        (109, 'Cell Biology', 5), 
+                                                        (110, 'Genetics', 5); 
 
-SELECT  
-   R.RecordID, 
-   R.YearVal, 
-   ISNULL(Y.NetPresentValue, 0) AS NetPresentValue 
-      FROM RequestList R 
-      LEFT JOIN YearData Y 
-      ON R.RecordID = Y.RecordID 
-      AND R.YearVal = Y.YearVal; 
+SELECT * FROM Courses; 
+
+SELECT DepartmentName 
+  FROM Departments 
+  WHERE DepartmentID IN ( 
+  SELECT DepartmentID 
+  FROM Courses 
+  GROUP BY DepartmentID 
+  HAVING COUNT(CourseID) > 2 
+); 
